@@ -1,0 +1,373 @@
+.storyboard-orchestrator {
+  background-color: whitesmoke;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  border: 1px solid rgb(89, 89, 90);
+
+  position: relative;
+}
+
+.toolbar-toggle-button {
+  position: absolute;
+  right: 0;
+
+  z-index: 1;
+
+  display: grid;
+  place-items: center;
+
+  cursor: pointer;
+}
+
+/* toolbar  */
+.storyboard-toolbar {
+  padding: 5px;
+
+  display: flex;
+  flex-direction: column;
+
+  background-color: cornsilk;
+  border: 1px solid salmon;
+}
+
+.toolbar-action-items {
+  margin-top: auto;
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+
+.toolbar-action-item {
+  padding: 8px 10px;
+  border: 1px solid gray;
+  cursor: pointer;
+
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.toolbar-action-item:hover {
+  opacity: 0.7;
+}
+
+.toolbar-action-item:active {
+  scale: 0.9;
+}
+
+/* layout */
+.storyboard-layout-wrapper {
+  display: grid;
+  place-items: center;
+}
+
+.storyboard-layout-core-scaled-container {
+  border: 1px dashed black;
+  display: grid;
+
+  place-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.storyboard-layout-core-scaled-container::after {
+  content: "Storyboard Layout Engine";
+  z-index: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: gray;
+  opacity: 0.5;
+}
+
+.storyboard-controls-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  background-color: cornsilk;
+  border: 1px solid salmon;
+
+  padding: 0px 10px;
+
+  gap: 10px;
+}
+
+.storyboard-scale-controls-wrapper {
+  margin-left: auto;
+  display: grid;
+}
+
+/* storyboard scale controls */
+.storyboard-scale-controls-wrapper {
+  display: grid;
+  grid-template-columns: auto 100px auto 28px auto;
+  align-items: center;
+  gap: 3px;
+}
+
+.storyboard-scale-controls-buttons-wrapper {
+  display: flex;
+  flex-direction: row;
+  gap: 2px;
+}
+
+.storyboard-scale-controls-button {
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  background-color: rgb(231, 231, 231);
+
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+
+.storyboard-scale-controls-button:hover {
+  background-color: rgb(209, 208, 208);
+}
+
+.storyboard-scale-controls-button:active {
+  scale: 0.9;
+}
+
+.storyboard-scale-controls-button-disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* storyboard slider controls */
+.storyboard-scale-controls-slider-wrapper {
+  max-width: calc(100% - 10px);
+  width: calc(100% - 10px);
+  height: 20px;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.storyboard-scale-controls-slider-track {
+  height: 4px;
+  width: 100%;
+  background-color: rgb(192, 192, 192);
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+}
+
+.storyboard-scale-controls-slider-progress {
+  width: 50%; /* will be filled via script */
+  background-color: rgb(15, 15, 15);
+}
+
+.storyboard-scale-controls-slider-head {
+  width: 10px;
+  height: 18px;
+  position: absolute;
+  background-color: rgb(231, 231, 231);
+  border: 1px solid gray;
+  cursor: pointer;
+  top: 50%; /* will be filled via script */
+  transform: translateY(-50%);
+}
+
+.storyboard-scale-controls-slider-head:hover {
+  background-color: rgb(209, 208, 208);
+}
+
+.storyboard-scale-controls-scale-info {
+  font-size: 12px;
+  text-align: center;
+
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+
+/* fit icon */
+.storyboard-scale-controls-fit-size-icon {
+  width: 15px;
+  height: 15px;
+  border: 1px solid rgb(100, 100, 100);
+  position: relative;
+}
+.storyboard-scale-controls-fit-size-icon::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 50%;
+  height: 50%;
+  border: 1px dotted rgb(100, 100, 100);
+  transform: translate(-50%, -50%);
+}
+
+/* storyboard element */
+.storyboard-element {
+  position: absolute;
+  overflow: hidden;
+  z-index: 1;
+
+  /* width, height, top, left, padding - will be filled from script */
+}
+
+.storyboard-element-active {
+  border: 1px solid gray;
+}
+
+.storyboard-element-core {
+  position: relative;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  background-color: #e4e4e4;
+  width: 100%;
+  height: 100%;
+
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* element drag controls */
+.storyboard-element-resize-control {
+  position: absolute;
+  background-color: rgb(170, 170, 170);
+  z-index: 1;
+
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.storyboard-element-resize-mystery {
+  opacity: 0;
+  z-index: 2 !important;
+}
+
+.storyboard-element-resize-control-rect-handle-left {
+  width: 4px;
+  height: 12px;
+
+  top: 50%;
+  left: -1px;
+  transform: translateY(-50%);
+  cursor: ew-resize;
+}
+
+.storyboard-element-resize-control-rect-handle-right {
+  width: 4px;
+  height: 12px;
+
+  top: 50%;
+  right: -1px;
+  transform: translateY(-50%);
+  cursor: ew-resize;
+}
+
+.storyboard-element-resize-control-rect-handle-top {
+  height: 4px;
+  width: 12px;
+
+  left: 50%;
+  top: -1px;
+  transform: translateX(-50%);
+  cursor: ns-resize;
+}
+
+.storyboard-element-resize-control-rect-handle-bottom {
+  height: 4px;
+  width: 12px;
+
+  left: 50%;
+  bottom: -1px;
+  transform: translateX(-50%);
+  cursor: ns-resize;
+}
+
+/* top - left */
+.storyboard-element-resize-control-rect-handle-top-left {
+  height: 4px;
+  width: 12px;
+
+  top: -1px;
+  left: -1px;
+  cursor: nwse-resize;
+}
+
+.storyboard-element-resize-control-rect-handle-top-left::after {
+  content: "";
+  position: absolute;
+  width: 4px;
+  height: 12px;
+  top: 0px;
+  left: 0px;
+  background-color: inherit;
+}
+
+/* top - right */
+.storyboard-element-resize-control-rect-handle-top-right {
+  height: 4px;
+  width: 12px;
+
+  top: -1px;
+  right: -1px;
+  cursor: nesw-resize;
+}
+
+.storyboard-element-resize-control-rect-handle-top-right::after {
+  content: "";
+  position: absolute;
+  width: 4px;
+  height: 12px;
+  top: 0;
+  right: 0;
+  background-color: inherit;
+}
+
+/* bottom - left */
+.storyboard-element-resize-control-rect-handle-bottom-left {
+  height: 4px;
+  width: 12px;
+
+  bottom: -1px;
+  left: -1px;
+  cursor: nesw-resize;
+}
+
+.storyboard-element-resize-control-rect-handle-bottom-left::after {
+  content: "";
+  position: absolute;
+  width: 4px;
+  height: 12px;
+  bottom: 0;
+  left: 0;
+  background-color: inherit;
+}
+
+/* bottom - right */
+.storyboard-element-resize-control-rect-handle-bottom-right {
+  height: 4px;
+  width: 12px;
+
+  bottom: -1px;
+  right: -1px;
+  cursor: nwse-resize;
+}
+
+.storyboard-element-resize-control-rect-handle-bottom-right::after {
+  content: "";
+  position: absolute;
+  width: 4px;
+  height: 12px;
+  bottom: 0;
+  right: 0;
+  background-color: inherit;
+}
