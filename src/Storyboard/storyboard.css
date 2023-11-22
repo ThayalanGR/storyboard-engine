@@ -262,6 +262,32 @@
   background-color: gray;
 }
 
+.storyboard-element-option-menu {
+  min-width: 80px;
+  font-size: 12px;
+  background-color: #f1f1f1;
+  border: 1px solid rgb(183, 183, 183);
+}
+
+.storyboard-element-option-menu-item {
+  padding: 5px 10px;
+  color: black;
+  cursor: pointer;
+}
+
+.storyboard-element-option-menu-item-inactive {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.storyboard-element-option-menu-item:active {
+  scale: 0.9;
+}
+
+.storyboard-element-option-menu-item:hover {
+  background-color: #e4e4e4;
+}
+
 .storyboard-element-core {
   position: relative;
   top: 50%;

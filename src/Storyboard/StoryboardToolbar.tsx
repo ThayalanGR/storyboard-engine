@@ -20,12 +20,10 @@ const StoryboardToolbar = (props: { dimension: IDimension }) => {
     storyboardLayoutEngineService.insertElement();
   };
 
-  const deleteElement = useCallback(() => {
-    if (hasActiveElement) {
+  const deleteElement = () => {
+    if (hasActiveElement)
       storyboardLayoutEngineService.deleteElement(activeElementId);
-      updateActiveElementId(null)
-    }
-  }, [hasActiveElement, activeElementId, updateActiveElementId]);
+  }
 
   // paint
   return (

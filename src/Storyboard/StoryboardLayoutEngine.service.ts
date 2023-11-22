@@ -79,13 +79,14 @@ export default class StoryboardLayoutEngineService {
   }
 
   deleteElement(elementId: string) {
-    const { storyboard, updateStoryBoard } = useStoryboardStore.getState();
+    const { storyboard, updateStoryBoard, updateActiveElementId } = useStoryboardStore.getState();
 
     const newElements = storyboard.elements.filter(
       (element) => element.elementId !== elementId
     );
 
     updateStoryBoard({ ...storyboard, elements: newElements });
+    updateActiveElementId(null);
   }
 
   updateElement(elementId: string, updatedElement: IStoryboardElement) {
