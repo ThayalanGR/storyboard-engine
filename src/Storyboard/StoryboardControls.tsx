@@ -1,4 +1,4 @@
-import { IDimension } from "./StoryboardOrchestrator";
+import { IDimension } from "./Storyboard.store";
 import StoryboardScaleControls from "./StoryboardScaleControls";
 
 export default function StoryboardControls(props: { dimension: IDimension }) {

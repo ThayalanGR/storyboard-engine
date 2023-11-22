@@ -5,7 +5,7 @@ export interface IStoryboardStore {
   updateStoryBoard: (storyboard: IStoryboard) => void;
 
   activeElementId: string | null;
-  updateActiveElementId: (activeElementId: string) => void;
+  updateActiveElementId: (activeElementId: string | null) => void;
 
   scaleControls: IStoryboardScaleControls;
   updateScaleControls: (scaleControls: IStoryboardScaleControls) => void;

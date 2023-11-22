@@ -7,9 +7,9 @@ const StoryboardToolbar = (props: { dimension: IDimension }) => {
   const { dimension } = props;
 
   // ref
-  const { current: storyboardLayoutEngineService } = useRef(
+  const storyboardLayoutEngineService = useRef(
     StoryboardLayoutEngineService.getInstance()
-  );
+  ).current;
 
   // handlers
   const createElement = () => {

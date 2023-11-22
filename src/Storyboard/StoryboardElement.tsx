@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 
 import {
   IDimension,
@@ -10,6 +10,7 @@ import {
 import StoryboardElementResizeControls from "./StoryboardElementResizeControls";
 import StoryboardLayoutEngineService from "./StoryboardLayoutEngine.service";
 import classNames from "classnames";
+import { useClickOutsideListener } from "./useClickOutsideListener";
 
 export interface IElementResizeInfo {
   dimension: IDimension;
@@ -25,10 +26,14 @@ export default function StoryboardElement(props: {
   } = props;
 
   // refs
+  const elementRef = useRef<HTMLDivElement>(null)
   const storyboardLayoutEngineService = useRef(
     StoryboardLayoutEngineService.getInstance()
   ).current;
   const positionChangeOffsetTracker = useRef({ x: 0, y: 0 });
+
+  // hooks
+  const { clickedOutside, removeListener, resetListener } = useClickOutsideListener({ componentsReference: [elementRef], classNames: ['storyboard-element'] })
 
   // state
   const {
@@ -46,6 +51,25 @@ export default function StoryboardElement(props: {
     [storyboard]
   );
   const isActiveElement = activeElementId === elementId;
+
+  // effects
+  useEffect(() => {
+    if (isActiveElement)
+      resetListener()
+    else
+      removeListener()
+
+    return () => {
+      removeListener()
+    }
+  }, [isActiveElement])
+
+  useEffect(() => {
+    if (clickedOutside) {
+      updateActiveElementId(null)
+      removeListener()
+    }
+  }, [clickedOutside])
 
   // styles
   const elementStyle = {
@@ -119,16 +143,16 @@ export default function StoryboardElement(props: {
 
     let [x1, y1] = [offsetX, offsetY];
 
-    const isRightBoudaryReached = x1 + elementBoundingRect.width > storyRight;
-    const isBottomBoudaryReached =
+    const isRightBoundaryReached = x1 + elementBoundingRect.width > storyRight;
+    const isBottomBoundaryReached =
       y1 + elementBoundingRect.height > storyBottom;
 
     // re-position conditional restriction block
-    if (isRightBoudaryReached && isBottomBoudaryReached) {
+    if (isRightBoundaryReached && isBottomBoundaryReached) {
       return;
-    } else if (isBottomBoudaryReached && !isRightBoudaryReached) {
+    } else if (isBottomBoundaryReached && !isRightBoundaryReached) {
       y1 = storyBottom - elementBoundingRect.height;
-    } else if (isRightBoudaryReached && !isBottomBoudaryReached) {
+    } else if (isRightBoundaryReached && !isBottomBoundaryReached) {
       x1 = storyRight - elementBoundingRect.width;
     }
 
@@ -183,6 +207,7 @@ export default function StoryboardElement(props: {
       onDragStart={conditionalFunction(onPositionChangeStart)}
       onDrag={conditionalFunction(onPositionChange)}
       onClick={onElementClick}
+      ref={elementRef}
     >
       <div
         className="storyboard-element-core"

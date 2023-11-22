@@ -6,7 +6,7 @@ import {
 } from "./Storyboard.store";
 
 export default class StoryboardLayoutEngineService {
-  // staic items
+  // static items
   private static _storyboardLayoutEngineService: StoryboardLayoutEngineService;
 
   public static getInstance() {
@@ -28,9 +28,9 @@ export default class StoryboardLayoutEngineService {
     // find the scale factor
     const scaleFactor = scaleControls.bestFit
       ? this.findScaleFactorToFitTargetInsideCurrent({
-          targetDimension,
-          storyboardDimension
-        })
+        targetDimension,
+        storyboardDimension
+      })
       : scaleControls.scaleFactor;
 
     // If targetDimension is already smaller, no need to scale up - in this case scaleFactor will be 1.0
@@ -87,7 +87,7 @@ export default class StoryboardLayoutEngineService {
     updateStoryBoard({ ...storyboard, elements: newElements });
   }
 
-  udpateElement(elementId: string, updatedElement: IStoryboardElement) {
+  updateElement(elementId: string, updatedElement: IStoryboardElement) {
     const { storyboard, updateStoryBoard } = useStoryboardStore.getState();
 
     const newElements = storyboard.elements.filter(
