@@ -63,7 +63,7 @@ export default class StoryboardLayoutEngineService {
 
   // insert element
   insertElement() {
-    const { storyboard, updateStoryBoard } = useStoryboardStore.getState();
+    const { storyboard, updateStoryBoard, updateActiveElementId } = useStoryboardStore.getState();
 
     const newStoryboardElement: IStoryboardElement = {
       elementId: `dummy_element_${storyboard.elements.length + 1}`,
@@ -74,7 +74,8 @@ export default class StoryboardLayoutEngineService {
 
     const newElements = [...storyboard.elements, newStoryboardElement];
 
-    updateStoryBoard({ ...storyboard, elements: newElements });
+    updateStoryBoard({ ...storyboard, elements: newElements, });
+    updateActiveElementId(newStoryboardElement.elementId);
   }
 
   deleteElement(elementId: string) {
