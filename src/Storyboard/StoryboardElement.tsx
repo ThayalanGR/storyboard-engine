@@ -11,6 +11,7 @@ import StoryboardElementResizeControls from "./StoryboardElementResizeControls";
 import StoryboardLayoutEngineService from "./StoryboardLayoutEngine.service";
 import classNames from "classnames";
 import { useClickOutsideListener } from "./useClickOutsideListener";
+import StoryboardElementOptions from "./StoryboardElementOptions";
 
 export interface IElementResizeInfo {
   dimension: IDimension;
@@ -22,8 +23,9 @@ export default function StoryboardElement(props: {
 }) {
   // props
   const {
-    element: { elementId, position, dimension, content }
+    element
   } = props;
+  const { elementId, position, dimension, content } = element;
 
   // services
   const storyboardLayoutEngineService = StoryboardLayoutEngineService.getInstance()
@@ -179,17 +181,6 @@ export default function StoryboardElement(props: {
     updateElementDimension(event.currentTarget, resizeInfo);
   };
 
-  const onElementCoreDragStart = (event: React.DragEvent<HTMLDivElement>) => {
-    const img = new Image(0, 0);
-    img.src = "";
-    event.dataTransfer.setDragImage(img, -10000, -10000);
-    event.stopPropagation();
-  };
-
-  const onElementCoreDrag = (event: React.DragEvent<HTMLDivElement>) => {
-    event.stopPropagation();
-  };
-
   const onElementClick = () => {
     if (!isActiveElement) updateActiveElementId(elementId);
   };
@@ -213,16 +204,16 @@ export default function StoryboardElement(props: {
       <div
         className="storyboard-element-core"
         style={elementCoreStyle}
-        draggable={isActiveElement}
-        onDragStart={conditionalFunction(onElementCoreDragStart)}
-        onDrag={conditionalFunction(onElementCoreDrag)}
       >
         {content}
       </div>
       {isActiveElement && (
-        <StoryboardElementResizeControls
-          updateElementDimension={updateElementDimension}
-        />
+        <>
+          <StoryboardElementResizeControls
+            updateElementDimension={updateElementDimension}
+          />
+          <StoryboardElementOptions element={element} scaleFactor={scaleFactor} />
+        </>
       )}
     </div>
   );

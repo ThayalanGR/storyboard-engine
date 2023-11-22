@@ -209,13 +209,57 @@
 /* storyboard element */
 .storyboard-element {
   position: absolute;
-  overflow: hidden;
 
   /* z-index, width, height, top, left, padding - will be filled from script */
 }
 
 .storyboard-element-active {
   border: 1px solid gray;
+}
+
+.storyboard-element-options-wrapper {
+  position: absolute;
+  z-index: 2;
+  right: 0;
+  height: 18px;
+  width: auto;
+  display: flex;
+  flex-direction: row;
+  background-color: #f1f1f1;
+  border: 1px solid rgb(181, 181, 181);
+}
+
+.storyboard-element-option {
+  width: 20px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  -moz-user-select: none;
+  user-select: none;
+}
+
+.storyboard-element-option:hover {
+  background-color: #e4e4e4;
+}
+
+.storyboard-element-option:active {
+  scale: 0.9;
+}
+
+.storyboard-element-option-menu-icon {
+  display: flex;
+  flex-direction: row;
+  gap: 2px;
+}
+
+.storyboard-element-option-menu-icon > span {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background-color: gray;
 }
 
 .storyboard-element-core {
