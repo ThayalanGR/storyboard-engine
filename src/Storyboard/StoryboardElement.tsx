@@ -35,7 +35,7 @@ export default function StoryboardElement(props: {
   const positionChangeOffsetTracker = useRef({ x: 0, y: 0 });
 
   // hooks
-  const { clickedOutside, removeListener, resetListener } = useClickOutsideListener({ componentsReference: [elementRef], classNames: ['storyboard-element'] })
+  const { clickedOutside, removeListener, resetListener } = useClickOutsideListener({ componentsReference: [elementRef], classNames: ['storyboard-element', 'toolbar-action-item-delete-element'] })
 
   // state
   const {
