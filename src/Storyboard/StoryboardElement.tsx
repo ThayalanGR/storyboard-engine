@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import React, { CSSProperties, useCallback, useEffect, useMemo, useRef } from "react";
 
 import {
   IDimension,
@@ -25,11 +25,11 @@ export default function StoryboardElement(props: {
     element: { elementId, position, dimension, content }
   } = props;
 
+  // services
+  const storyboardLayoutEngineService = StoryboardLayoutEngineService.getInstance()
+
   // refs
   const elementRef = useRef<HTMLDivElement>(null)
-  const storyboardLayoutEngineService = useRef(
-    StoryboardLayoutEngineService.getInstance()
-  ).current;
   const positionChangeOffsetTracker = useRef({ x: 0, y: 0 });
 
   // hooks
@@ -72,16 +72,17 @@ export default function StoryboardElement(props: {
   }, [clickedOutside])
 
   // styles
-  const elementStyle = {
+  const elementStyle: CSSProperties = {
     width: dimension.width * scaleFactor,
     height: dimension.height * scaleFactor,
     left: position.x * scaleFactor,
-    top: position.y * scaleFactor
+    top: position.y * scaleFactor,
+    zIndex: isActiveElement ? STORYBOARD_CONSTANTS.STORYBOARD_ELEMENT_ELEVATIONS.ACTIVE_ELEMENT : STORYBOARD_CONSTANTS.STORYBOARD_ELEMENT_ELEVATIONS.BASE_ELEMENT
   };
 
-  const elementCoreStyle = {
-    width: elementStyle.width - STORYBOARD_CONSTANTS.ELEMENT_PADDING * 2,
-    height: elementStyle.height - STORYBOARD_CONSTANTS.ELEMENT_PADDING * 2
+  const elementCoreStyle: CSSProperties = {
+    width: (elementStyle.width as number) - STORYBOARD_CONSTANTS.ELEMENT_PADDING * 2,
+    height: (elementStyle.height as number) - STORYBOARD_CONSTANTS.ELEMENT_PADDING * 2
   };
 
   // handlers

@@ -16,11 +16,11 @@ export default function StoryboardElementResizeControls(props: {
   // props
   const { updateElementDimension } = props;
 
+  // services
+  const storyboardLayoutEngineService = StoryboardLayoutEngineService.getInstance()
+
   // refs
   const previousResizeInfo = useRef<IElementResizeInfo>();
-  const storyboardLayoutEngineService = useRef(
-    StoryboardLayoutEngineService.getInstance()
-  ).current;
 
   // handlers
   const onDrag = useCallback(

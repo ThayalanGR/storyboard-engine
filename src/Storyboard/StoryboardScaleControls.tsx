@@ -7,11 +7,8 @@ export default function StoryboardScaleControls() {
   // state
   const { scaleControls, updateScaleControls } = useStoryboardStore();
 
-  // memo
-  const storyboardLayoutEngineService = useMemo(
-    () => StoryboardLayoutEngineService.getInstance(),
-    []
-  );
+  // services
+  const storyboardLayoutEngineService = StoryboardLayoutEngineService.getInstance()
 
   // handlers
   const onScaleChange = (scaleValue: number) =>
@@ -40,7 +37,7 @@ export default function StoryboardScaleControls() {
     });
 
   // progress head drag
-  const getProgressSlidedPercentage = (e: React.DragEvent<HTMLDivElement>) => {
+  const getProgressSlidePercentage = (e: React.DragEvent<HTMLDivElement>) => {
     const parentElementBoundingRect = e.currentTarget.parentElement?.getBoundingClientRect();
     const draggedWidth = e.clientX - (parentElementBoundingRect?.left ?? 0);
     const progressWidth = parentElementBoundingRect?.width ?? 0;
@@ -69,9 +66,8 @@ export default function StoryboardScaleControls() {
 
   const onProgressHeadSlide = useCallback(
     (event: React.DragEvent<HTMLDivElement>, newProgress: number) => {
-      event.currentTarget.style.left = `${
-        newProgress - STORYBOARD_CONSTANTS.SLIDER_HEAD_DIMENSION.WIDTH / 2
-      }%`;
+      event.currentTarget.style.left = `${newProgress - STORYBOARD_CONSTANTS.SLIDER_HEAD_DIMENSION.WIDTH / 2
+        }%`;
       // find and update the scale factor
       const newScaleFactor = storyboardLayoutEngineService.roundToDecimal(
         storyboardLayoutEngineService.calculateValueFromPercentage(
@@ -86,7 +82,7 @@ export default function StoryboardScaleControls() {
 
   const onHeadDragStart = useCallback(
     (event: React.DragEvent<HTMLDivElement>) => {
-      const draggedPercentage = getProgressSlidedPercentage(event);
+      const draggedPercentage = getProgressSlidePercentage(event);
       onProgressHeadSlide(event, draggedPercentage);
     },
     []
@@ -94,13 +90,13 @@ export default function StoryboardScaleControls() {
 
   const onHeadDrag = useCallback((event: React.DragEvent<HTMLDivElement>) => {
     if (event.clientX <= 0) return;
-    const draggedPercentage = getProgressSlidedPercentage(event);
+    const draggedPercentage = getProgressSlidePercentage(event);
     onProgressHeadSlide(event, draggedPercentage);
   }, []);
 
   const onHeadDragEnd = useCallback(
     (event: React.DragEvent<HTMLDivElement>) => {
-      const draggedPercentage = getProgressSlidedPercentage(event);
+      const draggedPercentage = getProgressSlidePercentage(event);
       onProgressHeadSlide(event, draggedPercentage);
     },
     []
@@ -123,9 +119,8 @@ export default function StoryboardScaleControls() {
     width: `${sliderPercentage}%`
   };
   const progressHeadStyle: CSSProperties = {
-    left: `${
-      sliderPercentage - STORYBOARD_CONSTANTS.SLIDER_HEAD_DIMENSION.WIDTH / 2
-    }%` // placing at midpoint of the head
+    left: `${sliderPercentage - STORYBOARD_CONSTANTS.SLIDER_HEAD_DIMENSION.WIDTH / 2
+      }%` // placing at midpoint of the head
   };
 
   // paint

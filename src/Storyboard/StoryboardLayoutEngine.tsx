@@ -22,11 +22,8 @@ const StoryboardLayoutEngine = (props: IStoryboardLayoutEngineProps) => {
   // state
   const { scaleControls, updateScaleControls } = useStoryboardStore();
 
-  // memo
-  const storyboardLayoutEngineService = useMemo(
-    () => StoryboardLayoutEngineService.getInstance(),
-    []
-  );
+  // services
+  const storyboardLayoutEngineService = StoryboardLayoutEngineService.getInstance()
 
   // compute
   const { scaledDimension: storyboardScaledDimension, scaleFactor } = useMemo(
