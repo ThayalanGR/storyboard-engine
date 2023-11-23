@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from "react";
+import React, { RefObject, useCallback, useRef } from "react";
 import {
   IDimension,
   IStoryboardElementPosition,
@@ -17,13 +17,21 @@ export default function StoryboardElementResizeControls(props: {
   const { updateElementDimension } = props;
 
   // services
-  const storyboardLayoutEngineService = StoryboardLayoutEngineService.getInstance()
+  const storyboardLayoutEngineService = StoryboardLayoutEngineService.getInstance();
 
   // refs
   const previousResizeInfo = useRef<IElementResizeInfo>();
+  const topRef = useRef<HTMLDivElement | null>(null);
+  const topRightRef = useRef<HTMLDivElement | null>(null);
+  const rightRef = useRef<HTMLDivElement | null>(null);
+  const bottomRightRef = useRef<HTMLDivElement | null>(null);
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+  const bottomLeftRef = useRef<HTMLDivElement | null>(null);
+  const leftRef = useRef<HTMLDivElement | null>(null);
+  const topLeftRef = useRef<HTMLDivElement | null>(null);
 
   // handlers
-  const onDrag = useCallback(
+  const onResizeHandleMouseDown = useCallback(
     (
       type:
         | "bottom"
@@ -33,220 +41,218 @@ export default function StoryboardElementResizeControls(props: {
         | "bottom-left"
         | "top"
         | "top-right"
-        | "top-left"
-    ) => (event: React.DragEvent<HTMLDivElement>) => {
+        | "top-left",
+      resizeHandleRef: RefObject<HTMLDivElement>
+    ) => (event: React.MouseEvent<HTMLDivElement>) => {
       // this prevents the parent's repositioning stuff
       event.stopPropagation();
 
-      const storyboardRootContainerBoundingRect = event.currentTarget.parentElement?.parentElement?.getBoundingClientRect();
-      const [storyX, storyY, storyRight, storyBottom] = [
-        (storyboardRootContainerBoundingRect?.x ?? 0) + 1, // 1 for storyboard wrapper border compensation
-        (storyboardRootContainerBoundingRect?.y ?? 0) + 1,
-        storyboardRootContainerBoundingRect?.right ?? 0,
-        storyboardRootContainerBoundingRect?.bottom ?? 0
-      ];
+      const handleMouseMove = (moveEvent: MouseEvent) => {
 
-      // boundary checking block
-      if (event.clientX <= 0 && event.clientY <= 0) return;
+        const handleElement = resizeHandleRef.current;
+        if (!handleElement) return;
 
-      const parentElementBoundingRect = event.currentTarget.parentElement?.getBoundingClientRect();
-      let [x1, y1] = [
-        parentElementBoundingRect?.x ?? 0,
-        parentElementBoundingRect?.y ?? 0
-      ];
-      const [originalX1, originalY1] = [x1, y1];
+        const storyboardRootContainerBoundingRect = handleElement.parentElement?.parentElement?.getBoundingClientRect();
+        const [storyX, storyY, storyRight, storyBottom] = [
+          (storyboardRootContainerBoundingRect?.x ?? 0) + 1, // 1 for storyboard wrapper border compensation
+          (storyboardRootContainerBoundingRect?.y ?? 0) + 1,
+          storyboardRootContainerBoundingRect?.right ?? 0,
+          storyboardRootContainerBoundingRect?.bottom ?? 0
+        ];
 
-      let [x2, y2] = [
-        storyboardLayoutEngineService.getClampedNumber(
-          event.clientX,
-          storyX,
-          storyRight
-        ),
-        storyboardLayoutEngineService.getClampedNumber(
-          event.clientY,
-          storyY,
-          storyBottom
-        )
-      ];
+        const parentElementBoundingRect = handleElement.parentElement?.getBoundingClientRect();
+        let [x1, y1] = [
+          parentElementBoundingRect?.x ?? 0,
+          parentElementBoundingRect?.y ?? 0
+        ];
+        const [originalX1, originalY1] = [x1, y1];
 
-      let [width, height] = [
-        parentElementBoundingRect?.width ?? 0,
-        parentElementBoundingRect?.height ?? 0
-      ];
-      const [originalParentElementWidth, originalParentElementHeight] = [
-        width,
-        height
-      ];
+        let [width, height] = [
+          parentElementBoundingRect?.width ?? 0,
+          parentElementBoundingRect?.height ?? 0
+        ];
+        const [originalParentElementWidth, originalParentElementHeight] = [
+          width,
+          height
+        ];
 
-      switch (type) {
-        case "bottom":
-          height = y2 - y1;
-          break;
-        case "right":
-          width = x2 - x1;
-          break;
-        case "bottom-right":
-          width = x2 - x1;
-          height = y2 - y1;
-          break;
-        case "bottom-left":
-          x1 = x2;
-          x2 = parentElementBoundingRect?.right ?? 0;
-          width = x2 - x1;
-          height = y2 - y1;
-          break;
-        case "left":
-          x1 = x2;
-          x2 = parentElementBoundingRect?.right ?? 0;
-          width = x2 - x1;
-          break;
-        case "top-left":
-          x1 = x2;
-          y1 = y2;
-          x2 = parentElementBoundingRect?.right ?? 0;
-          y2 = parentElementBoundingRect?.bottom ?? 0;
-          width = x2 - x1;
-          height = y2 - y1;
-          break;
-        case "top":
-          y1 = y2;
-          y2 = parentElementBoundingRect?.bottom ?? 0;
-          height = y2 - y1;
-          break;
-        case "top-right":
-          y1 = y2;
-          y2 = parentElementBoundingRect?.bottom ?? 0;
-          width = x2 - x1;
-          height = y2 - y1;
-          break;
-        default:
-          break;
-      }
+        let [x2, y2] = [
+          storyboardLayoutEngineService.getClampedNumber(
+            moveEvent.clientX,
+            storyX,
+            storyRight
+          ),
+          storyboardLayoutEngineService.getClampedNumber(
+            moveEvent.clientY,
+            storyY,
+            storyBottom
+          )
+        ];
 
-      const dimension: IDimension = { width, height };
+        switch (type) {
+          case "bottom":
+            height = y2 - y1;
+            break;
+          case "right":
+            width = x2 - x1;
+            break;
+          case "bottom-right":
+            width = x2 - x1;
+            height = y2 - y1;
+            break;
+          case "bottom-left":
+            x1 = x2;
+            x2 = parentElementBoundingRect?.right ?? 0;
+            width = x2 - x1;
+            height = y2 - y1;
+            break;
+          case "left":
+            x1 = x2;
+            x2 = parentElementBoundingRect?.right ?? 0;
+            width = x2 - x1;
+            break;
+          case "top-left":
+            x1 = x2;
+            y1 = y2;
+            x2 = parentElementBoundingRect?.right ?? 0;
+            y2 = parentElementBoundingRect?.bottom ?? 0;
+            width = x2 - x1;
+            height = y2 - y1;
+            break;
+          case "top":
+            y1 = y2;
+            y2 = parentElementBoundingRect?.bottom ?? 0;
+            height = y2 - y1;
+            break;
+          case "top-right":
+            y1 = y2;
+            y2 = parentElementBoundingRect?.bottom ?? 0;
+            width = x2 - x1;
+            height = y2 - y1;
+            break;
+          default:
+            break;
+        }
 
-      // resize conditional restriction block
-      const hasValidWidth =
-        dimension.width >= STORYBOARD_CONSTANTS.MINIMUM_ELEMENT_DIMENSION.WIDTH;
-      const hasValidHeight =
-        dimension.height >=
-        STORYBOARD_CONSTANTS.MINIMUM_ELEMENT_DIMENSION.HEIGHT;
+        const dimension: IDimension = { width, height };
 
-      if (!hasValidWidth && !hasValidHeight) {
-        return;
-      } else if (!hasValidWidth && hasValidHeight) {
-        dimension.width = originalParentElementWidth;
-        x1 = originalX1;
-      } else if (!hasValidHeight && hasValidWidth) {
-        dimension.height = originalParentElementHeight;
-        y1 = originalY1;
-      }
+        // resize conditional restriction block
+        const hasValidWidth =
+          dimension.width >= STORYBOARD_CONSTANTS.MINIMUM_ELEMENT_DIMENSION.WIDTH;
+        const hasValidHeight =
+          dimension.height >=
+          STORYBOARD_CONSTANTS.MINIMUM_ELEMENT_DIMENSION.HEIGHT;
 
-      const position: IStoryboardElementPosition = {
-        x: storyboardLayoutEngineService.getClampedNumber(
-          x1 - storyX,
-          0,
-          Infinity
-        ),
-        y: storyboardLayoutEngineService.getClampedNumber(
-          y1 - storyY,
-          0,
-          Infinity
-        )
+        if (!hasValidWidth && !hasValidHeight) {
+          return;
+        } else if (!hasValidWidth && hasValidHeight) {
+          dimension.width = originalParentElementWidth;
+          x1 = originalX1;
+        } else if (!hasValidHeight && hasValidWidth) {
+          dimension.height = originalParentElementHeight;
+          y1 = originalY1;
+        }
+
+        const position: IStoryboardElementPosition = {
+          x: storyboardLayoutEngineService.getClampedNumber(
+            x1 - storyX,
+            0,
+            Infinity
+          ),
+          y: storyboardLayoutEngineService.getClampedNumber(
+            y1 - storyY,
+            0,
+            Infinity
+          )
+        };
+
+        const resizeInfo: IElementResizeInfo = { dimension, position };
+
+        if (moveEvent.type !== "mouseup") previousResizeInfo.current = resizeInfo;
+
+        if (previousResizeInfo.current)
+          updateElementDimension(
+            handleElement.parentElement as HTMLElement,
+            previousResizeInfo.current
+          );
       };
 
-      const resizeInfo: IElementResizeInfo = { dimension, position };
+      const handleMouseUp = () => {
+        document.removeEventListener("mousemove", handleMouseMove);
+        document.removeEventListener("mouseup", handleMouseUp);
+      };
 
-      if (event.type !== "dragend") previousResizeInfo.current = resizeInfo;
-
-      if (previousResizeInfo.current)
-        updateElementDimension(
-          event?.currentTarget?.parentElement as HTMLElement,
-          previousResizeInfo.current
-        );
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
     },
-    [previousResizeInfo, updateElementDimension]
+    [previousResizeInfo, updateElementDimension, storyboardLayoutEngineService]
   );
 
   // paint
   return (
     <>
       {/* top */}
-      <div className="storyboard-element-resize-control storyboard-element-resize-control-rect-handle-top" />
       <div
         className="storyboard-element-resize-control storyboard-element-resize-control-rect-handle-top storyboard-element-resize-mystery"
         role="button"
-        draggable
-        onDrag={onDrag("top")}
-        onDragEnd={onDrag("top")}
+        ref={topRef}
+        onMouseDown={onResizeHandleMouseDown("top", topRef)}
       />
 
       {/* bottom */}
-      <div className="storyboard-element-resize-control storyboard-element-resize-control-rect-handle-bottom" />
       <div
-        className="storyboard-element-resize-control storyboard-element-resize-control-rect-handle-bottom storyboard-element-resize-mystery"
+        className="storyboard-element-resize-control storyboard-element-resize-control-rect-handle-bottom"
         role="button"
-        draggable
-        onDrag={onDrag("bottom")}
-        onDragEnd={onDrag("bottom")}
+        ref={bottomRef}
+        onMouseDown={onResizeHandleMouseDown("bottom", bottomRef)}
       />
 
       {/* left */}
-      <div className="storyboard-element-resize-control storyboard-element-resize-control-rect-handle-left" />
       <div
-        className="storyboard-element-resize-control storyboard-element-resize-control-rect-handle-left storyboard-element-resize-mystery"
+        className="storyboard-element-resize-control storyboard-element-resize-control-rect-handle-left"
         role="button"
-        draggable
-        onDrag={onDrag("left")}
-        onDragEnd={onDrag("left")}
+        ref={leftRef}
+        onMouseDown={onResizeHandleMouseDown("left", leftRef)}
       />
 
       {/* right */}
-      <div className="storyboard-element-resize-control storyboard-element-resize-control-rect-handle-right" />
       <div
-        className="storyboard-element-resize-control storyboard-element-resize-control-rect-handle-right storyboard-element-resize-mystery"
+        className="storyboard-element-resize-control storyboard-element-resize-control-rect-handle-right"
         role="button"
-        draggable
-        onDrag={onDrag("right")}
-        onDragEnd={onDrag("right")}
+        ref={rightRef}
+        onMouseDown={onResizeHandleMouseDown("right", rightRef)}
       />
 
-      <div className="storyboard-element-resize-control storyboard-element-resize-control-rect-handle-top-left" />
+      {/* top - left */}
       <div
-        className="storyboard-element-resize-control storyboard-element-resize-control-rect-handle-top-left storyboard-element-resize-mystery"
+        className="storyboard-element-resize-control storyboard-element-resize-control-rect-handle-top-left"
         role="button"
-        draggable
-        onDrag={onDrag("top-left")}
-        onDragEnd={onDrag("top-left")}
+        ref={topLeftRef}
+        onMouseDown={onResizeHandleMouseDown("top-left", topLeftRef)}
       />
 
-      <div className="storyboard-element-resize-control storyboard-element-resize-control-rect-handle-top-right" />
+      {/* top - right */}
       <div
-        className="storyboard-element-resize-control storyboard-element-resize-control-rect-handle-top-right storyboard-element-resize-mystery"
+        className="storyboard-element-resize-control storyboard-element-resize-control-rect-handle-top-right"
         role="button"
-        draggable
-        onDrag={onDrag("top-right")}
-        onDragEnd={onDrag("top-right")}
+        ref={topRightRef}
+        onMouseDown={onResizeHandleMouseDown("top-right", topRightRef)}
       />
 
       {/* bottom - left */}
-      <div className="storyboard-element-resize-control storyboard-element-resize-control-rect-handle-bottom-left" />
       <div
-        className="storyboard-element-resize-control storyboard-element-resize-control-rect-handle-bottom-left storyboard-element-resize-mystery"
+        className="storyboard-element-resize-control storyboard-element-resize-control-rect-handle-bottom-left"
         role="button"
-        draggable
-        onDrag={onDrag("bottom-left")}
-        onDragEnd={onDrag("bottom-left")}
+        ref={bottomLeftRef}
+        onMouseDown={onResizeHandleMouseDown("bottom-left", bottomLeftRef)}
       />
 
       {/* bottom - right */}
-      <div className="storyboard-element-resize-control storyboard-element-resize-control-rect-handle-bottom-right" />
       <div
-        className="storyboard-element-resize-control storyboard-element-resize-control-rect-handle-bottom-right storyboard-element-resize-mystery"
+        className="storyboard-element-resize-control storyboard-element-resize-control-rect-handle-bottom-right"
         role="button"
-        draggable
-        onDrag={onDrag("bottom-right")}
-        onDragEnd={onDrag("bottom-right")}
+        ref={bottomRightRef}
+        onMouseDown={onResizeHandleMouseDown("bottom-right", bottomRightRef)}
       />
     </>
   );
