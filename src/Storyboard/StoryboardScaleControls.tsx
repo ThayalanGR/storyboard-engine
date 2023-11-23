@@ -1,4 +1,4 @@
-import React, { CSSProperties, useCallback, useMemo } from "react";
+import React, { CSSProperties, useCallback, useRef } from "react";
 import classnames from "classnames";
 import { useStoryboardStore, STORYBOARD_CONSTANTS } from "./Storyboard.store";
 import StoryboardLayoutEngineService from "./StoryboardLayoutEngine.service";
@@ -8,7 +8,11 @@ export default function StoryboardScaleControls() {
   const { scaleControls, updateScaleControls } = useStoryboardStore();
 
   // services
-  const storyboardLayoutEngineService = StoryboardLayoutEngineService.getInstance()
+  const storyboardLayoutEngineService = StoryboardLayoutEngineService.getInstance();
+
+  // refs
+  const progressHeadRef = useRef<HTMLDivElement>(null)
+  const sliderTrackRef = useRef<HTMLDivElement>(null)
 
   // handlers
   const onScaleChange = (scaleValue: number) =>
@@ -24,11 +28,9 @@ export default function StoryboardScaleControls() {
       bestFit: false
     });
 
-  const onScaleStepIncrease = () =>
-    onScaleChange(scaleControls.scaleFactor + 0.1);
+  const onScaleStepIncrease = () => onScaleChange(scaleControls.scaleFactor + 0.1);
 
-  const onScaleStepDecrease = () =>
-    onScaleChange(scaleControls.scaleFactor - 0.1);
+  const onScaleStepDecrease = () => onScaleChange(scaleControls.scaleFactor - 0.1);
 
   const onBestFitClick = () =>
     updateScaleControls({
@@ -36,14 +38,14 @@ export default function StoryboardScaleControls() {
       bestFit: true
     });
 
-  // progress head drag
-  const getProgressSlidePercentage = (e: React.DragEvent<HTMLDivElement>) => {
-    const parentElementBoundingRect = e.currentTarget.parentElement?.getBoundingClientRect();
-    const draggedWidth = e.clientX - (parentElementBoundingRect?.left ?? 0);
+  // progress head slide
+  const getProgressSlidePercentage = (e: React.MouseEvent<HTMLDivElement>) => {
+    const parentElementBoundingRect = sliderTrackRef.current?.getBoundingClientRect();
+    const progressedWidth = e.clientX - (parentElementBoundingRect?.left ?? 0);
     const progressWidth = parentElementBoundingRect?.width ?? 0;
 
-    const draggedPercentage = storyboardLayoutEngineService.calculatePercentage(
-      draggedWidth,
+    const newPercentage = storyboardLayoutEngineService.calculatePercentage(
+      progressedWidth,
       progressWidth
     );
     const minPercentage = storyboardLayoutEngineService.calculatePercentage(
@@ -56,7 +58,7 @@ export default function StoryboardScaleControls() {
     );
     const clampedPercentage = storyboardLayoutEngineService.roundToDecimal(
       storyboardLayoutEngineService.getClampedNumber(
-        draggedPercentage,
+        newPercentage,
         minPercentage,
         maxPercentage
       )
@@ -65,9 +67,9 @@ export default function StoryboardScaleControls() {
   };
 
   const onProgressHeadSlide = useCallback(
-    (event: React.DragEvent<HTMLDivElement>, newProgress: number) => {
-      event.currentTarget.style.left = `${newProgress - STORYBOARD_CONSTANTS.SLIDER_HEAD_DIMENSION.WIDTH / 2
-        }%`;
+    (newProgress: number) => {
+      if (progressHeadRef.current)
+        progressHeadRef.current.style.left = `${newProgress - STORYBOARD_CONSTANTS.SLIDER_HEAD_DIMENSION.WIDTH / 2}%`;
       // find and update the scale factor
       const newScaleFactor = storyboardLayoutEngineService.roundToDecimal(
         storyboardLayoutEngineService.calculateValueFromPercentage(
@@ -77,30 +79,32 @@ export default function StoryboardScaleControls() {
       );
       onScaleChange(newScaleFactor);
     },
-    []
+    [progressHeadRef]
   );
 
-  const onHeadDragStart = useCallback(
-    (event: React.DragEvent<HTMLDivElement>) => {
-      const draggedPercentage = getProgressSlidePercentage(event);
-      onProgressHeadSlide(event, draggedPercentage);
+  const onHeadMouseDown = useCallback(
+    (event: React.MouseEvent<HTMLDivElement>) => {
+      const newPercentage = getProgressSlidePercentage(event);
+      onProgressHeadSlide(newPercentage);
+
+      // Add mousemove and mouseup event listeners to the document
+      document.addEventListener("mousemove", onHeadMouseMove);
+      document.addEventListener("mouseup", onHeadMouseUp);
     },
     []
   );
 
-  const onHeadDrag = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+  const onHeadMouseMove = useCallback((event: MouseEvent) => {
     if (event.clientX <= 0) return;
-    const draggedPercentage = getProgressSlidePercentage(event);
-    onProgressHeadSlide(event, draggedPercentage);
+    const newPercentage = getProgressSlidePercentage(event as unknown as React.MouseEvent<HTMLDivElement>);
+    onProgressHeadSlide(newPercentage);
   }, []);
 
-  const onHeadDragEnd = useCallback(
-    (event: React.DragEvent<HTMLDivElement>) => {
-      const draggedPercentage = getProgressSlidePercentage(event);
-      onProgressHeadSlide(event, draggedPercentage);
-    },
-    []
-  );
+  const onHeadMouseUp = useCallback(() => {
+    // Remove the mousemove and mouseup event listeners from the document
+    document.removeEventListener("mousemove", onHeadMouseMove);
+    document.removeEventListener("mouseup", onHeadMouseUp);
+  }, [onHeadMouseMove]);
 
   // compute
   const hasScaleIncrease =
@@ -119,8 +123,7 @@ export default function StoryboardScaleControls() {
     width: `${sliderPercentage}%`
   };
   const progressHeadStyle: CSSProperties = {
-    left: `${sliderPercentage - STORYBOARD_CONSTANTS.SLIDER_HEAD_DIMENSION.WIDTH / 2
-      }%` // placing at midpoint of the head
+    left: `${sliderPercentage - STORYBOARD_CONSTANTS.SLIDER_HEAD_DIMENSION.WIDTH / 2}%` // placing at the midpoint of the head
   };
 
   // paint
@@ -139,7 +142,7 @@ export default function StoryboardScaleControls() {
 
       {/* progress slider */}
       <div className="storyboard-scale-controls-slider-wrapper">
-        <div className="storyboard-scale-controls-slider-track" />
+        <div className="storyboard-scale-controls-slider-track" ref={sliderTrackRef} />
         <div
           className={classnames(
             "storyboard-scale-controls-slider-track",
@@ -149,13 +152,11 @@ export default function StoryboardScaleControls() {
           style={sliderProgressStyle}
         />
         <div
+          ref={progressHeadRef}
           className="storyboard-scale-controls-slider-head"
           style={progressHeadStyle}
           role="button"
-          draggable
-          onDragStart={onHeadDragStart}
-          onDrag={onHeadDrag}
-          onDragEnd={onHeadDragEnd}
+          onMouseDown={onHeadMouseDown}
         />
       </div>
 

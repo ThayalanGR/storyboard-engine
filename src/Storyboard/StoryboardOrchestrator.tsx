@@ -55,7 +55,7 @@ export default function StoryboardOrchestrator() {
         className="storyboard-orchestrator"
         style={{ ...visualContainerDimensionWrapperWidth }}
       >
-        <StoryboardToolbar dimension={toolbarDimension} />
+        {showToolbar && <StoryboardToolbar dimension={toolbarDimension} />}
         <ToolbarToggleButton
           toolbarDimension={toolbarDimension}
           sidePanelDimension={sidePanelDimension}
