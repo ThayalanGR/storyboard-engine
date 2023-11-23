@@ -28,14 +28,17 @@ export default function StoryboardElement(props: {
   const { elementId, position, dimension, content } = element;
 
   // services
-  const storyboardLayoutEngineService = StoryboardLayoutEngineService.getInstance()
+  const storyboardLayoutEngineService = StoryboardLayoutEngineService.getInstance();
 
   // refs
-  const elementRef = useRef<HTMLDivElement>(null)
-  const positionChangeOffsetTracker = useRef({ x: 0, y: 0 });
+  const elementRef = useRef<HTMLDivElement>(null);
+  const positionChangeOffsetTracker = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
 
   // hooks
-  const { clickedOutside, removeListener, resetListener } = useClickOutsideListener({ componentsReference: [elementRef], classNames: ['storyboard-element', 'toolbar-action-item-delete-element'] })
+  const { clickedOutside, removeListener, resetListener } = useClickOutsideListener({
+    componentsReference: [elementRef],
+    classNames: ['storyboard-element', 'toolbar-action-item-delete-element']
+  });
 
   // state
   const {
@@ -57,21 +60,21 @@ export default function StoryboardElement(props: {
   // effects
   useEffect(() => {
     if (isActiveElement)
-      resetListener()
+      resetListener();
     else
-      removeListener()
+      removeListener();
 
     return () => {
-      removeListener()
-    }
-  }, [isActiveElement])
+      removeListener();
+    };
+  }, [isActiveElement]);
 
   useEffect(() => {
     if (clickedOutside) {
-      updateActiveElementId(null)
-      removeListener()
+      updateActiveElementId(null);
+      removeListener();
     }
-  }, [clickedOutside])
+  }, [clickedOutside]);
 
   // styles
   const elementStyle: CSSProperties = {
@@ -118,72 +121,82 @@ export default function StoryboardElement(props: {
     [storyboard, updateStoryBoard, currentElementIndex, scaleFactor]
   );
 
-  const onPositionChangeStart = (event: React.DragEvent<HTMLDivElement>) => {
-    const img = new Image(0, 0);
-    img.src = "";
-    event.dataTransfer.setDragImage(img, -10000, -10000);
 
-    const element = (event.target as HTMLElement).getBoundingClientRect();
-    positionChangeOffsetTracker.current.x = event.clientX - element.left ?? 0;
-    positionChangeOffsetTracker.current.y = event.clientY - element.top ?? 0;
-  };
+  const onPositionChange = useCallback(
+    (event: MouseEvent) => {
+      if (event.clientX <= 0 && event.clientY <= 0) return;
 
-  const onPositionChange = (event: React.DragEvent<HTMLDivElement>) => {
-    if (event.clientX <= 0 && event.clientY <= 0) return;
+      const storyboardRootContainerBoundingRect = elementRef.current?.parentElement?.getBoundingClientRect();
+      const [storyX, storyY, storyRight, storyBottom] = [
+        (storyboardRootContainerBoundingRect?.x ?? 0) + 1, // 1 for storyboard wrapper border compensation
+        (storyboardRootContainerBoundingRect?.y ?? 0) + 1,
+        storyboardRootContainerBoundingRect?.right ?? 0,
+        storyboardRootContainerBoundingRect?.bottom ?? 0
+      ];
 
-    const storyboardRootContainerBoundingRect = event.currentTarget?.parentElement?.getBoundingClientRect();
-    const [storyX, storyY, storyRight, storyBottom] = [
-      (storyboardRootContainerBoundingRect?.x ?? 0) + 1, // 1 for storyboard wrapper border compensation
-      (storyboardRootContainerBoundingRect?.y ?? 0) + 1,
-      storyboardRootContainerBoundingRect?.right ?? 0,
-      storyboardRootContainerBoundingRect?.bottom ?? 0
-    ];
+      const offsetX = event.clientX - positionChangeOffsetTracker.current.x;
+      const offsetY = event.clientY - positionChangeOffsetTracker.current.y;
 
-    const offsetX = event.clientX - positionChangeOffsetTracker.current.x;
-    const offsetY = event.clientY - positionChangeOffsetTracker.current.y;
+      const elementBoundingRect = elementRef.current?.getBoundingClientRect();
 
-    const elementBoundingRect = event.currentTarget?.getBoundingClientRect();
+      let [x1, y1] = [offsetX, offsetY];
 
-    let [x1, y1] = [offsetX, offsetY];
+      const isRightBoundaryReached = x1 + (elementBoundingRect?.width ?? 0) > storyRight;
+      const isBottomBoundaryReached = y1 + (elementBoundingRect?.height ?? 0) > storyBottom;
 
-    const isRightBoundaryReached = x1 + elementBoundingRect.width > storyRight;
-    const isBottomBoundaryReached =
-      y1 + elementBoundingRect.height > storyBottom;
+      // re-position conditional restriction block
+      if (isRightBoundaryReached && isBottomBoundaryReached) {
+        return;
+      } else if (isBottomBoundaryReached && !isRightBoundaryReached) {
+        y1 = storyBottom - (elementBoundingRect?.height ?? 0);
+      } else if (isRightBoundaryReached && !isBottomBoundaryReached) {
+        x1 = storyRight - (elementBoundingRect?.width ?? 0);
+      }
 
-    // re-position conditional restriction block
-    if (isRightBoundaryReached && isBottomBoundaryReached) {
-      return;
-    } else if (isBottomBoundaryReached && !isRightBoundaryReached) {
-      y1 = storyBottom - elementBoundingRect.height;
-    } else if (isRightBoundaryReached && !isBottomBoundaryReached) {
-      x1 = storyRight - elementBoundingRect.width;
-    }
+      const position: IStoryboardElementPosition = {
+        x: storyboardLayoutEngineService.getClampedNumber(
+          x1 - storyX,
+          0,
+          Infinity
+        ),
+        y: storyboardLayoutEngineService.getClampedNumber(
+          y1 - storyY,
+          0,
+          Infinity
+        )
+      };
 
-    const position: IStoryboardElementPosition = {
-      x: storyboardLayoutEngineService.getClampedNumber(
-        x1 - storyX,
-        0,
-        Infinity
-      ),
-      y: storyboardLayoutEngineService.getClampedNumber(
-        y1 - storyY,
-        0,
-        Infinity
-      )
-    };
+      const { width, height } = elementBoundingRect ?? { width: 0, height: 0 };
+      const resizeInfo: IElementResizeInfo = {
+        dimension: { width, height },
+        position
+      };
 
-    const { width, height } = elementBoundingRect;
-    const resizeInfo: IElementResizeInfo = {
-      dimension: { width, height },
-      position
-    };
+      updateElementDimension(elementRef.current as HTMLElement, resizeInfo);
+    },
+    [storyboardLayoutEngineService, positionChangeOffsetTracker, updateElementDimension]
+  );
 
-    updateElementDimension(event.currentTarget, resizeInfo);
-  };
+  const onPositionChangeStart = useCallback(
+    (event: React.MouseEvent<HTMLDivElement>) => {
+      const element = elementRef.current?.getBoundingClientRect();
+      positionChangeOffsetTracker.current.x = event.clientX - (element?.left ?? 0);
+      positionChangeOffsetTracker.current.y = event.clientY - (element?.top ?? 0);
 
-  const onElementClick = () => {
+      const onMouseUp = () => {
+        window.removeEventListener('mousemove', onPositionChange)
+        window.removeEventListener('mouseup', onMouseUp)
+      }
+
+      window.addEventListener('mousemove', onPositionChange)
+      window.addEventListener('mouseup', onMouseUp)
+    },
+    [onPositionChange]
+  );
+
+  const onElementClick = useCallback(() => {
     if (!isActiveElement) updateActiveElementId(elementId);
-  };
+  }, [isActiveElement, elementId, updateActiveElementId]);
 
   const conditionalFunction = <T extends Function>(func: T): T | undefined =>
     isActiveElement ? func : undefined;
@@ -195,9 +208,7 @@ export default function StoryboardElement(props: {
         "storyboard-element-active": isActiveElement
       })}
       style={elementStyle}
-      draggable={isActiveElement}
-      onDragStart={conditionalFunction(onPositionChangeStart)}
-      onDrag={conditionalFunction(onPositionChange)}
+      onMouseDown={conditionalFunction(onPositionChangeStart)}
       onClick={onElementClick}
       ref={elementRef}
     >

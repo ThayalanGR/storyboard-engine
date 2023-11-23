@@ -318,7 +318,7 @@
   -webkit-user-select: none;
 }
 
-/* element drag controls */
+/* element resize controls */
 .storyboard-element-resize-control {
   position: absolute;
   background-color: rgb(170, 170, 170);
