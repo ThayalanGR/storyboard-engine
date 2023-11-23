@@ -127,6 +127,8 @@ export default class StoryboardLayoutEngineService {
       const { position: { x, y }, dimension: { width, height } } = element;
       for (let i = y; i < Math.floor(y + height); i++) {
         for (let j = x; j < Math.floor(x + width); j++) {
+          i = Math.floor(i)
+          j = Math.floor(j)
           grid[i][j] = true;
         }
       }
