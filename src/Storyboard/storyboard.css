@@ -328,11 +328,6 @@
   -webkit-user-select: none;
 }
 
-.storyboard-element-resize-mystery {
-  opacity: 0;
-  z-index: 2 !important;
-}
-
 .storyboard-element-resize-control-rect-handle-left {
   width: 4px;
   height: 12px;

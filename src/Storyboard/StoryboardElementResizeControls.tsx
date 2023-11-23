@@ -193,7 +193,7 @@ export default function StoryboardElementResizeControls(props: {
     <>
       {/* top */}
       <div
-        className="storyboard-element-resize-control storyboard-element-resize-control-rect-handle-top storyboard-element-resize-mystery"
+        className="storyboard-element-resize-control storyboard-element-resize-control-rect-handle-top"
         role="button"
         ref={topRef}
         onMouseDown={onResizeHandleMouseDown("top", topRef)}
