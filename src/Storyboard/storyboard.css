@@ -312,6 +312,7 @@
   display: grid;
   place-items: center;
   overflow: hidden;
+  text-align: center;
 
   user-select: none;
   -webkit-user-select: none;

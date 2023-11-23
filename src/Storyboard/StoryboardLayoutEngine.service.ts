@@ -64,12 +64,13 @@ export default class StoryboardLayoutEngineService {
   // insert element
   insertElement() {
     const { storyboard, updateStoryBoard, updateActiveElementId } = useStoryboardStore.getState();
+    const uniqueId = this.generateUUID();
 
     const newStoryboardElement: IStoryboardElement = {
-      elementId: `dummy_element_${storyboard.elements.length + 1}`,
+      elementId: `dummy_element_${uniqueId}`,
       dimension: { width: 200, height: 200 },
       position: { x: 0, y: 0 },
-      content: `dummy_element_${storyboard.elements.length + 1}`
+      content: `dummy_element (${uniqueId})`
     };
 
     const newElements = [...storyboard.elements, newStoryboardElement];
@@ -77,6 +78,15 @@ export default class StoryboardLayoutEngineService {
     updateStoryBoard({ ...storyboard, elements: newElements, });
     updateActiveElementId(newStoryboardElement.elementId);
   }
+
+  generateUUID(): string {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      const r = (Math.random() * 16) | 0;
+      const v = c === 'x' ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
+    });
+  }
+
 
   deleteElement(elementId: string) {
     const { storyboard, updateStoryBoard, updateActiveElementId } = useStoryboardStore.getState();
