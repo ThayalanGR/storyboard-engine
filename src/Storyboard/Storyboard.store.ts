@@ -9,6 +9,9 @@ export interface IStoryboardStore {
 
   scaleControls: IStoryboardScaleControls;
   updateScaleControls: (scaleControls: IStoryboardScaleControls) => void;
+
+  sidePanel: boolean;
+  toggleSidePanel: (sidePanel: boolean) => void;
 }
 
 export interface IStoryboard {
@@ -71,7 +74,15 @@ export const useStoryboardStore = create<IStoryboardStore>((set) => ({
   updateScaleControls: (scaleControls) =>
     set(() => ({
       scaleControls
+    })),
+
+  sidePanel: false,
+  toggleSidePanel: (sidePanel) =>
+    set(() => ({
+      sidePanel
     }))
+
+
 }));
 
 export const STORYBOARD_CONSTANTS = {

@@ -7,7 +7,7 @@ const StoryboardToolbar = (props: { dimension: IDimension }) => {
   const { dimension } = props;
 
   // state
-  const { activeElementId, updateActiveElementId } = useStoryboardStore(({ activeElementId, updateActiveElementId }) => ({ activeElementId, updateActiveElementId }))
+  const { activeElementId, sidePanel, toggleSidePanel } = useStoryboardStore(({ activeElementId, sidePanel, toggleSidePanel }) => ({ activeElementId, sidePanel, toggleSidePanel }))
 
   // services
   const storyboardLayoutEngineService = StoryboardLayoutEngineService.getInstance()
@@ -23,6 +23,10 @@ const StoryboardToolbar = (props: { dimension: IDimension }) => {
   const deleteElement = () => {
     if (hasActiveElement)
       storyboardLayoutEngineService.deleteElement(activeElementId);
+  }
+
+  const openDummySidePanel = () => {
+    toggleSidePanel(!sidePanel)
   }
 
   // paint
@@ -46,6 +50,14 @@ const StoryboardToolbar = (props: { dimension: IDimension }) => {
             Delete Element
           </div>
         }
+        <div
+          className="toolbar-action-item"
+          role="button"
+          onClick={openDummySidePanel}
+          style={{ marginLeft: 'auto', marginRight: 40 }}
+        >
+          {sidePanel ? 'Close' : 'Open'} Dummy side Panel
+        </div>
       </div>
     </div>
   );

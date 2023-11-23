@@ -28,6 +28,7 @@
 
   background-color: cornsilk;
   border: 1px solid salmon;
+  font-size: 13px;
 }
 
 .toolbar-action-items {
@@ -54,6 +55,19 @@
   scale: 0.9;
 }
 
+.dummy-side-panel-wrapper {
+  position: absolute;
+  top: 0;
+  right: 0;
+
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  font-weight: bold;
+  background-color: cornsilk;
+  border: 1px solid gray;
+}
+
 /* layout */
 .storyboard-layout-wrapper {
   display: grid;
@@ -62,9 +76,6 @@
 
 .storyboard-layout-core-scaled-container {
   border: 1px dashed black;
-  display: grid;
-
-  place-items: center;
   position: relative;
   overflow: hidden;
 }
