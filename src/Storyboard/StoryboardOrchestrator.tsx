@@ -14,7 +14,7 @@ export default function StoryboardOrchestrator() {
   // handlers
   function getToolbarDimension(sidePanelDimension: IDimension): IDimension {
     if (!showToolbar) return { width: 0, height: 0 };
-    return { width: visualContainerDimension.width - sidePanelDimension.width, height: 100 };
+    return { width: visualContainerDimension.width - sidePanelDimension.width, height: 114 };
   }
   function getSidePanelDimension(): IDimension {
     if (!sidePanel) return { width: 0, height: 0 };
@@ -26,8 +26,8 @@ export default function StoryboardOrchestrator() {
   // compute
   const ORCHESTRATOR_BORDER_SIZE = 2; // 1 for each side
   const visualContainerDimensionWrapperWidth: IDimension = {
-    width: 1280,
-    height: 720
+    width: 1030,
+    height: 574 + 30
   };
   const visualContainerDimension: IDimension = {
     width: visualContainerDimensionWrapperWidth.width - ORCHESTRATOR_BORDER_SIZE,
@@ -40,7 +40,7 @@ export default function StoryboardOrchestrator() {
     height: 30
   };
 
-  const storyboardTargetDimension: IDimension = {
+  const currentStoryboardContainerDimension: IDimension = {
     width: visualContainerDimension.width - sidePanelDimension.width,
     height:
       visualContainerDimension.height -
@@ -62,7 +62,7 @@ export default function StoryboardOrchestrator() {
           toggle={toggleToolbar}
         />
         <StoryboardLayoutEngine
-          targetDimension={storyboardTargetDimension}
+          currentDimension={currentStoryboardContainerDimension}
           storyboard={storyboard}
         />
         {sidePanel && <DummySidePanel dimension={sidePanelDimension} />}

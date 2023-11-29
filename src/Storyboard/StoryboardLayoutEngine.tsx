@@ -8,15 +8,15 @@ import StoryboardLayoutEngineService from "./StoryboardLayoutEngine.service";
 import StoryboardElement from "./StoryboardElement";
 
 interface IStoryboardLayoutEngineProps {
-  targetDimension: IDimension;
+  currentDimension: IDimension;
   storyboard: IStoryboard;
 }
 
 const StoryboardLayoutEngine = (props: IStoryboardLayoutEngineProps) => {
   // props
   const {
-    targetDimension,
-    storyboard: { dimension: storyboardDimension, elements }
+    currentDimension,
+    storyboard: { dimension: targetDimension, elements }
   } = props;
 
   // state
@@ -30,14 +30,14 @@ const StoryboardLayoutEngine = (props: IStoryboardLayoutEngineProps) => {
     () =>
       storyboardLayoutEngineService.computeStoryboardScaledDimension({
         targetDimension,
-        storyboardDimension,
+        currentDimension,
         scaleControls
       }),
-    [storyboardDimension, targetDimension, scaleControls]
+    [currentDimension, targetDimension, scaleControls]
   );
   const hasScroll =
-    storyboardScaledDimension.width > targetDimension.width ||
-    storyboardScaledDimension.height > targetDimension.height;
+    storyboardScaledDimension.width > currentDimension.width ||
+    storyboardScaledDimension.height > currentDimension.height;
 
   // effects
   useLayoutEffect(() => {
@@ -47,10 +47,10 @@ const StoryboardLayoutEngine = (props: IStoryboardLayoutEngineProps) => {
 
   // styles
   const wrapperStyle: CSSProperties = {
-    width: targetDimension.width,
-    height: targetDimension.height,
-    maxWidth: targetDimension.width,
-    maxHeight: targetDimension.height,
+    width: currentDimension.width,
+    height: currentDimension.height,
+    maxWidth: currentDimension.width,
+    maxHeight: currentDimension.height,
     overflow: hasScroll ? "auto" : "hidden"
   };
 

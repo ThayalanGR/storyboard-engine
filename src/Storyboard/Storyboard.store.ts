@@ -46,8 +46,8 @@ export const useStoryboardStore = create<IStoryboardStore>((set) => ({
   storyboard: {
     boardId: "dummy_board",
     dimension: {
-      width: 1280,
-      height: 690
+      width: 1030,
+      height: 574
     },
     elements: [
       {
