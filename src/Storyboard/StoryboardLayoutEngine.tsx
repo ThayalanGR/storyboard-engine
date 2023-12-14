@@ -57,7 +57,8 @@ const StoryboardLayoutEngine = (props: IStoryboardLayoutEngineProps) => {
       updateScaleControls({ bestFit: true, scaleFactor });
     }
 
-    resetWrapperScroll()
+    if (!hasScroll)
+      resetWrapperScroll()
 
   }, [scaleControls, scaleFactor]);
 
