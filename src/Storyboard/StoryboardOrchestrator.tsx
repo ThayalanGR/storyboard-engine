@@ -4,12 +4,12 @@ import StoryboardLayoutEngine from "./StoryboardLayoutEngine";
 import StoryboardToolbar from "./StoryboardToolbar";
 import ToolbarToggleButton from "./ToolbarToggleButton";
 import StoryboardControls from "./StoryboardControls";
-import DummySidePanel from "./DummySidePanel";
+import LayoutSettingsSidePanel from "./LayoutSettingsSidePanel";
 
 export default function StoryboardOrchestrator() {
   // state
   const [showToolbar, setShowToolbar] = useState(true);
-  const { storyboard, sidePanel } = useStoryboardStore();
+  const { storyboard, scaleControls, sidePanel } = useStoryboardStore();
 
   // handlers
   function getToolbarDimension(sidePanelDimension: IDimension): IDimension {
@@ -65,12 +65,20 @@ export default function StoryboardOrchestrator() {
           currentDimension={currentStoryboardContainerDimension}
           storyboard={storyboard}
         />
-        {sidePanel && <DummySidePanel dimension={sidePanelDimension} />}
+        {sidePanel && <LayoutSettingsSidePanel dimension={sidePanelDimension} />}
         <StoryboardControls dimension={storyboardControlsDimension} />
       </div>
       <div>
-        Storyboard layout root dimension -&nbsp;
+        Storyboard Layout Target Dimension -&nbsp;
         {JSON.stringify(storyboard.dimension, null, 2)}
+        <br />
+        <br />
+        Current Container Dimension -&nbsp;
+        {JSON.stringify(currentStoryboardContainerDimension, null, 2)}
+        <br />
+        <br />
+        Current Scale factor to fit target inside current container -&nbsp;
+        {JSON.stringify(scaleControls, null, 2)}
       </div>
     </>
   );

@@ -55,17 +55,26 @@
   scale: 0.9;
 }
 
-.dummy-side-panel-wrapper {
+.layout-settings-side-panel-wrapper {
   position: absolute;
   top: 0;
   right: 0;
 
-  display: grid;
-  place-items: center;
+  padding: 15px 5px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 20px;
   font-size: 13px;
   font-weight: bold;
   background-color: cornsilk;
   border: 1px solid gray;
+}
+
+input {
+  padding: 10px;
 }
 
 /* layout */

@@ -25,7 +25,7 @@ const StoryboardToolbar = (props: { dimension: IDimension }) => {
       storyboardLayoutEngineService.deleteElement(activeElementId);
   }
 
-  const openDummySidePanel = () => {
+  const onLayoutSettingClick = () => {
     toggleSidePanel(!sidePanel)
   }
 
@@ -53,10 +53,10 @@ const StoryboardToolbar = (props: { dimension: IDimension }) => {
         <div
           className="toolbar-action-item"
           role="button"
-          onClick={openDummySidePanel}
+          onClick={onLayoutSettingClick}
           style={{ marginLeft: 'auto', marginRight: 40 }}
         >
-          {sidePanel ? 'Close' : 'Open'} Dummy side Panel
+          {sidePanel ? 'Close' : 'Open'} Layout Settings
         </div>
       </div>
     </div>
