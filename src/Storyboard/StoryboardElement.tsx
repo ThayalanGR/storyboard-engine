@@ -42,8 +42,8 @@ export default function StoryboardElement(props: {
 
   // state
   const {
-    storyboard,
     scaleControls: { scaleFactor },
+    storyboard,
     updateStoryBoard,
     activeElementId,
     updateActiveElementId
@@ -78,10 +78,10 @@ export default function StoryboardElement(props: {
 
   // styles
   const elementStyle: CSSProperties = {
-    width: dimension.width * scaleFactor,
-    height: dimension.height * scaleFactor,
-    left: position.x * scaleFactor,
-    top: position.y * scaleFactor,
+    width: dimension.width,
+    height: dimension.height,
+    left: position.x,
+    top: position.y,
     zIndex: isActiveElement ? STORYBOARD_CONSTANTS.STORYBOARD_ELEMENT_ELEVATIONS.ACTIVE_ELEMENT : STORYBOARD_CONSTANTS.STORYBOARD_ELEMENT_ELEVATIONS.BASE_ELEMENT
   };
 
@@ -107,12 +107,12 @@ export default function StoryboardElement(props: {
         newElements[currentElementIndex] = {
           ...newElements[currentElementIndex],
           position: {
-            x: position.x / scaleFactor,
-            y: position.y / scaleFactor
+            x: position.x,
+            y: position.y
           },
           dimension: {
-            width: dimension.width / scaleFactor,
-            height: dimension.height / scaleFactor
+            width: dimension.width,
+            height: dimension.height
           }
         };
         updateStoryBoard({ ...storyboard, elements: newElements });
@@ -126,31 +126,34 @@ export default function StoryboardElement(props: {
     (event: MouseEvent) => {
       if (event.clientX <= 0 && event.clientY <= 0) return;
 
+      const [clientX, clientY] = [event.clientX / scaleFactor, event.clientY / scaleFactor]
+
       const storyboardRootContainerBoundingRect = elementRef.current?.parentElement?.getBoundingClientRect();
       const [storyX, storyY, storyRight, storyBottom] = [
-        (storyboardRootContainerBoundingRect?.x ?? 0) + 1, // 1 for storyboard wrapper border compensation
-        (storyboardRootContainerBoundingRect?.y ?? 0) + 1,
-        storyboardRootContainerBoundingRect?.right ?? 0,
-        storyboardRootContainerBoundingRect?.bottom ?? 0
+        ((storyboardRootContainerBoundingRect?.x ?? 0) / scaleFactor) + 1, // 1 for storyboard wrapper border compensation
+        ((storyboardRootContainerBoundingRect?.y ?? 0) / scaleFactor) + 1,
+        ((storyboardRootContainerBoundingRect?.right ?? 0) / scaleFactor),
+        ((storyboardRootContainerBoundingRect?.bottom ?? 0) / scaleFactor)
       ];
 
-      const offsetX = event.clientX - positionChangeOffsetTracker.current.x;
-      const offsetY = event.clientY - positionChangeOffsetTracker.current.y;
+      const offsetX = clientX - (positionChangeOffsetTracker.current.x / scaleFactor);
+      const offsetY = clientY - (positionChangeOffsetTracker.current.y / scaleFactor);
 
       const elementBoundingRect = elementRef.current?.getBoundingClientRect();
+      const [elementWidth, elementHeight] = [((elementBoundingRect?.width ?? 0) / scaleFactor), ((elementBoundingRect?.height ?? 0) / scaleFactor)]
 
       let [x1, y1] = [offsetX, offsetY];
 
-      const isRightBoundaryReached = x1 + (elementBoundingRect?.width ?? 0) > storyRight;
-      const isBottomBoundaryReached = y1 + (elementBoundingRect?.height ?? 0) > storyBottom;
+      const isRightBoundaryReached = x1 + elementWidth > storyRight;
+      const isBottomBoundaryReached = y1 + elementHeight > storyBottom;
 
       // re-position conditional restriction block
       if (isRightBoundaryReached && isBottomBoundaryReached) {
         return;
       } else if (isBottomBoundaryReached && !isRightBoundaryReached) {
-        y1 = storyBottom - (elementBoundingRect?.height ?? 0);
+        y1 = storyBottom - elementHeight;
       } else if (isRightBoundaryReached && !isBottomBoundaryReached) {
-        x1 = storyRight - (elementBoundingRect?.width ?? 0);
+        x1 = storyRight - elementWidth;
       }
 
       const position: IStoryboardElementPosition = {
@@ -166,9 +169,8 @@ export default function StoryboardElement(props: {
         )
       };
 
-      const { width, height } = elementBoundingRect ?? { width: 0, height: 0 };
       const resizeInfo: IElementResizeInfo = {
-        dimension: { width, height },
+        dimension: { width: elementWidth, height: elementHeight },
         position
       };
 
@@ -193,6 +195,7 @@ export default function StoryboardElement(props: {
     },
     [onPositionChange]
   );
+
 
   const onElementClick = useCallback(() => {
     if (!isActiveElement) updateActiveElementId(elementId);
@@ -223,7 +226,7 @@ export default function StoryboardElement(props: {
           <StoryboardElementResizeControls
             updateElementDimension={updateElementDimension}
           />
-          <StoryboardElementOptions element={element} scaleFactor={scaleFactor} />
+          <StoryboardElementOptions element={element} />
         </>
       )}
     </div>

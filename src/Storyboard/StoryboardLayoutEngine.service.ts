@@ -18,40 +18,18 @@ export default class StoryboardLayoutEngineService {
   }
 
   // core functionalities
-  public computeStoryboardScaledDimension({
+  public findScaleFactorToFitTargetInsideCurrent({
     targetDimension,
-    currentDimension,
-    scaleControls
+    currentDimension, scaleControls
   }: {
     targetDimension: IDimension;
     currentDimension: IDimension;
-    scaleControls: IStoryboardScaleControls;
-  }) {
-    // find the scale factor
-    const scaleFactor = scaleControls.bestFit
-      ? this.findScaleFactorToFitTargetInsideCurrent({
-        targetDimension,
-        currentDimension
-      })
-      : scaleControls.scaleFactor;
-
-    // If targetDimension is already smaller, no need to scale up - in this case scaleFactor will be 1.0
-    // Apply the scale factor to targetDimension
-    const scaledDimension: IDimension = {
-      width: targetDimension.width * scaleFactor,
-      height: targetDimension.height * scaleFactor
-    };
-
-    return { scaledDimension, scaleFactor };
-  }
-
-  private findScaleFactorToFitTargetInsideCurrent({
-    targetDimension,
-    currentDimension
-  }: {
-    targetDimension: IDimension;
-    currentDimension: IDimension;
+    scaleControls: IStoryboardScaleControls
   }): number {
+
+    // find the scale factor
+    if (!scaleControls.bestFit) return scaleControls.scaleFactor;
+
     const widthScaleFactor = currentDimension.width / targetDimension.width;
     const heightScaleFactor =
       currentDimension.height / targetDimension.height;

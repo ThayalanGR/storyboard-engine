@@ -79,14 +79,27 @@ input {
 
 /* layout */
 .storyboard-layout-wrapper {
-  display: grid;
-  place-items: center;
+  position: relative;
+  scroll-behavior: smooth;
 }
 
 .storyboard-layout-core-scaled-container {
   border: 1px dashed black;
-  position: relative;
+  position: absolute;
   overflow: hidden;
+
+  /* set via script  */
+  scale: var(--scale-value);
+
+  transform-origin: top left;
+
+  z-index: 1;
+}
+
+.storyboard-layout-core-scaled-container-without-scroll {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .storyboard-layout-core-scaled-container::after {

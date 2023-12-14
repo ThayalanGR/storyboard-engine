@@ -1,4 +1,4 @@
-import { CSSProperties, useLayoutEffect, useMemo } from "react";
+import { CSSProperties, useLayoutEffect, useMemo, useRef } from "react";
 import {
   IDimension,
   IStoryboard,
@@ -6,6 +6,7 @@ import {
 } from "./Storyboard.store";
 import StoryboardLayoutEngineService from "./StoryboardLayoutEngine.service";
 import StoryboardElement from "./StoryboardElement";
+import classNames from "classnames";
 
 interface IStoryboardLayoutEngineProps {
   currentDimension: IDimension;
@@ -19,6 +20,9 @@ const StoryboardLayoutEngine = (props: IStoryboardLayoutEngineProps) => {
     storyboard: { dimension: targetDimension, elements }
   } = props;
 
+  // refs
+  const wrapperRef = useRef<HTMLDivElement>(null)
+
   // state
   const { scaleControls, updateScaleControls } = useStoryboardStore();
 
@@ -26,24 +30,38 @@ const StoryboardLayoutEngine = (props: IStoryboardLayoutEngineProps) => {
   const storyboardLayoutEngineService = StoryboardLayoutEngineService.getInstance()
 
   // compute
-  const { scaledDimension: storyboardScaledDimension, scaleFactor } = useMemo(
+  const scaleFactor = useMemo(
     () =>
-      storyboardLayoutEngineService.computeStoryboardScaledDimension({
+      storyboardLayoutEngineService.findScaleFactorToFitTargetInsideCurrent({
         targetDimension,
         currentDimension,
         scaleControls
       }),
     [currentDimension, targetDimension, scaleControls]
   );
+
   const hasScroll =
-    storyboardScaledDimension.width > currentDimension.width ||
-    storyboardScaledDimension.height > currentDimension.height;
+    targetDimension.width * scaleFactor > currentDimension.width ||
+    targetDimension.height * scaleFactor > currentDimension.height;
+
+  // handlers
+  const resetWrapperScroll = () => {
+    if (wrapperRef.current) {
+      wrapperRef.current.scrollTo({ top: 0, left: 0 })
+    }
+  }
 
   // effects
   useLayoutEffect(() => {
-    if (scaleControls.bestFit && scaleControls.scaleFactor !== scaleFactor)
+    if (scaleControls.bestFit && scaleControls.scaleFactor !== scaleFactor) {
       updateScaleControls({ bestFit: true, scaleFactor });
+    }
+
+    resetWrapperScroll()
+
   }, [scaleControls, scaleFactor]);
+
+
 
   // styles
   const wrapperStyle: CSSProperties = {
@@ -56,15 +74,16 @@ const StoryboardLayoutEngine = (props: IStoryboardLayoutEngineProps) => {
 
   // paint
   return (
-    <div className="storyboard-layout-wrapper" style={wrapperStyle}>
+    <div ref={wrapperRef} className="storyboard-layout-wrapper" style={wrapperStyle} >
       <div
-        className="storyboard-layout-core-scaled-container"
-        style={{ ...storyboardScaledDimension }}
+        className={classNames("storyboard-layout-core-scaled-container", { 'storyboard-layout-core-scaled-container-without-scroll': !hasScroll })}
+        style={{ ...targetDimension, '--scale-value': scaleFactor } as CSSProperties}
       >
         {elements.map((element) => (
           <StoryboardElement element={element} key={element.elementId} />
         ))}
       </div>
+      <div style={{ width: targetDimension.width * scaleFactor, height: targetDimension.height * scaleFactor }}></div>
     </div>
   );
 };

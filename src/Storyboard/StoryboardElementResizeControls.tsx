@@ -2,7 +2,8 @@ import React, { RefObject, useCallback, useRef } from "react";
 import {
   IDimension,
   IStoryboardElementPosition,
-  STORYBOARD_CONSTANTS
+  STORYBOARD_CONSTANTS,
+  useStoryboardStore
 } from "./Storyboard.store";
 import StoryboardLayoutEngineService from "./StoryboardLayoutEngine.service";
 import { IElementResizeInfo } from "./StoryboardElement";
@@ -15,6 +16,9 @@ export default function StoryboardElementResizeControls(props: {
 }) {
   // props
   const { updateElementDimension } = props;
+
+  // state
+  const scaleFactor = useStoryboardStore(state => state.scaleControls.scaleFactor)
 
   // services
   const storyboardLayoutEngineService = StoryboardLayoutEngineService.getInstance();
@@ -49,27 +53,30 @@ export default function StoryboardElementResizeControls(props: {
 
       const handleMouseMove = (moveEvent: MouseEvent) => {
 
+        const [clientX, clientY] = [moveEvent.clientX / scaleFactor, moveEvent.clientY / scaleFactor]
+
         const handleElement = resizeHandleRef.current;
         if (!handleElement) return;
 
         const storyboardRootContainerBoundingRect = handleElement.parentElement?.parentElement?.getBoundingClientRect();
         const [storyX, storyY, storyRight, storyBottom] = [
-          (storyboardRootContainerBoundingRect?.x ?? 0) + 1, // 1 for storyboard wrapper border compensation
-          (storyboardRootContainerBoundingRect?.y ?? 0) + 1,
-          storyboardRootContainerBoundingRect?.right ?? 0,
-          storyboardRootContainerBoundingRect?.bottom ?? 0
+          ((storyboardRootContainerBoundingRect?.x ?? 0) / scaleFactor) + 1, // 1 for storyboard wrapper border compensation
+          ((storyboardRootContainerBoundingRect?.y ?? 0) / scaleFactor) + 1,
+          ((storyboardRootContainerBoundingRect?.right ?? 0) / scaleFactor),
+          ((storyboardRootContainerBoundingRect?.bottom ?? 0) / scaleFactor)
         ];
 
         const parentElementBoundingRect = handleElement.parentElement?.getBoundingClientRect();
         let [x1, y1] = [
-          parentElementBoundingRect?.x ?? 0,
-          parentElementBoundingRect?.y ?? 0
+          (parentElementBoundingRect?.x ?? 0) / scaleFactor,
+          (parentElementBoundingRect?.y ?? 0) / scaleFactor
         ];
+
         const [originalX1, originalY1] = [x1, y1];
 
         let [width, height] = [
-          parentElementBoundingRect?.width ?? 0,
-          parentElementBoundingRect?.height ?? 0
+          (parentElementBoundingRect?.width ?? 0) / scaleFactor,
+          (parentElementBoundingRect?.height ?? 0) / scaleFactor
         ];
         const [originalParentElementWidth, originalParentElementHeight] = [
           width,
@@ -78,12 +85,12 @@ export default function StoryboardElementResizeControls(props: {
 
         let [x2, y2] = [
           storyboardLayoutEngineService.getClampedNumber(
-            moveEvent.clientX,
+            clientX,
             storyX,
             storyRight
           ),
           storyboardLayoutEngineService.getClampedNumber(
-            moveEvent.clientY,
+            clientY,
             storyY,
             storyBottom
           )
@@ -102,31 +109,31 @@ export default function StoryboardElementResizeControls(props: {
             break;
           case "bottom-left":
             x1 = x2;
-            x2 = parentElementBoundingRect?.right ?? 0;
+            x2 = (parentElementBoundingRect?.right ?? 0) / scaleFactor;
             width = x2 - x1;
             height = y2 - y1;
             break;
           case "left":
             x1 = x2;
-            x2 = parentElementBoundingRect?.right ?? 0;
+            x2 = (parentElementBoundingRect?.right ?? 0) / scaleFactor;
             width = x2 - x1;
             break;
           case "top-left":
             x1 = x2;
             y1 = y2;
-            x2 = parentElementBoundingRect?.right ?? 0;
-            y2 = parentElementBoundingRect?.bottom ?? 0;
+            x2 = (parentElementBoundingRect?.right ?? 0) / scaleFactor;
+            y2 = (parentElementBoundingRect?.bottom ?? 0) / scaleFactor;
             width = x2 - x1;
             height = y2 - y1;
             break;
           case "top":
             y1 = y2;
-            y2 = parentElementBoundingRect?.bottom ?? 0;
+            y2 = (parentElementBoundingRect?.bottom ?? 0) / scaleFactor;
             height = y2 - y1;
             break;
           case "top-right":
             y1 = y2;
-            y2 = parentElementBoundingRect?.bottom ?? 0;
+            y2 = (parentElementBoundingRect?.bottom ?? 0) / scaleFactor;
             width = x2 - x1;
             height = y2 - y1;
             break;

@@ -14,10 +14,9 @@ export const STORYBOARD_ELEMENT_OPTION_HEIGHT = 18;
 
 export default function StoryboardElementOptions(props: {
     element: IStoryboardElement;
-    scaleFactor: number;
 }) {
     // props
-    const { element, scaleFactor } = props;
+    const { element } = props;
 
     // services
     const storyboardLayoutEngineService = StoryboardLayoutEngineService.getInstance()
@@ -61,7 +60,7 @@ export default function StoryboardElementOptions(props: {
                 setPosition("inside");
             }
         }
-    }, [element.dimension, element.position, scaleFactor]);
+    }, [element.dimension, element.position]);
 
     // styles
     const wrapperStyle: CSSProperties = useMemo(() => {
