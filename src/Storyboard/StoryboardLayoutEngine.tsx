@@ -1,4 +1,4 @@
-import { CSSProperties, useLayoutEffect, useMemo, useRef } from "react";
+import { CSSProperties, useLayoutEffect, useMemo, } from "react";
 import {
   IDimension,
   IStoryboard,
@@ -20,8 +20,6 @@ const StoryboardLayoutEngine = (props: IStoryboardLayoutEngineProps) => {
     storyboard: { dimension: targetDimension, elements }
   } = props;
 
-  // refs
-  const wrapperRef = useRef<HTMLDivElement>(null)
 
   // state
   const { scaleControls, updateScaleControls } = useStoryboardStore();
@@ -44,21 +42,11 @@ const StoryboardLayoutEngine = (props: IStoryboardLayoutEngineProps) => {
     targetDimension.width * scaleFactor > currentDimension.width ||
     targetDimension.height * scaleFactor > currentDimension.height;
 
-  // handlers
-  const resetWrapperScroll = () => {
-    if (wrapperRef.current) {
-      wrapperRef.current.scrollTo({ top: 0, left: 0 })
-    }
-  }
-
   // effects
   useLayoutEffect(() => {
     if (scaleControls.bestFit && scaleControls.scaleFactor !== scaleFactor) {
       updateScaleControls({ bestFit: true, scaleFactor });
     }
-
-    if (!hasScroll)
-      resetWrapperScroll()
 
   }, [scaleControls, scaleFactor]);
 
@@ -73,18 +61,25 @@ const StoryboardLayoutEngine = (props: IStoryboardLayoutEngineProps) => {
     overflow: hasScroll ? "auto" : "hidden"
   };
 
+  const scaledContainerStyle = { ...targetDimension, '--scale-value': scaleFactor } as CSSProperties
+
+  const scrollSimulatorStyle: CSSProperties = { width: targetDimension.width * scaleFactor, height: targetDimension.height * scaleFactor }
+
   // paint
   return (
-    <div ref={wrapperRef} className="storyboard-layout-wrapper" style={wrapperStyle} >
+    <div className="storyboard-layout-wrapper" style={wrapperStyle} >
       <div
-        className={classNames("storyboard-layout-core-scaled-container", { 'storyboard-layout-core-scaled-container-without-scroll': !hasScroll })}
-        style={{ ...targetDimension, '--scale-value': scaleFactor } as CSSProperties}
-      >
-        {elements.map((element) => (
-          <StoryboardElement element={element} key={element.elementId} />
-        ))}
+        className={classNames("storyboard-layout-core-scaled-container-scroll-simulator")}
+        style={scrollSimulatorStyle}>
+        <div
+          className={classNames("storyboard-layout-core-scaled-container")}
+          style={scaledContainerStyle}
+        >
+          {elements.map((element) => (
+            <StoryboardElement element={element} key={element.elementId} />
+          ))}
+        </div>
       </div>
-      <div style={{ width: targetDimension.width * scaleFactor, height: targetDimension.height * scaleFactor }}></div>
     </div>
   );
 };

@@ -81,25 +81,24 @@ input {
 .storyboard-layout-wrapper {
   position: relative;
   scroll-behavior: smooth;
+  display: grid;
+  place-items: center;
+}
+
+.storyboard-layout-core-scaled-container-scroll-simulator {
+  position: relative;
 }
 
 .storyboard-layout-core-scaled-container {
-  border: 1px dashed black;
   position: absolute;
   overflow: hidden;
 
-  /* set via script  */
-  scale: var(--scale-value);
+  border: 1px dashed black;
 
   transform-origin: top left;
 
-  z-index: 1;
-}
-
-.storyboard-layout-core-scaled-container-without-scroll {
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  /* set via script  */
+  scale: var(--scale-value);
 }
 
 .storyboard-layout-core-scaled-container::after {
@@ -129,23 +128,14 @@ input {
   gap: 10px;
 }
 
-.storyboard-scale-controls-wrapper {
-  margin-left: auto;
-  display: grid;
-}
-
 /* storyboard scale controls */
 .storyboard-scale-controls-wrapper {
+  margin-left: auto;
+
   display: grid;
   grid-template-columns: auto 100px auto 28px auto;
   align-items: center;
   gap: 3px;
-}
-
-.storyboard-scale-controls-buttons-wrapper {
-  display: flex;
-  flex-direction: row;
-  gap: 2px;
 }
 
 .storyboard-scale-controls-button {
