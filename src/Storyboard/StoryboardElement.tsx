@@ -130,8 +130,8 @@ export default function StoryboardElement(props: {
 
       const storyboardRootContainerBoundingRect = elementRef.current?.parentElement?.getBoundingClientRect();
       const [storyX, storyY, storyRight, storyBottom] = [
-        ((storyboardRootContainerBoundingRect?.x ?? 0) / scaleFactor) + 1, // 1 for storyboard wrapper border compensation
-        ((storyboardRootContainerBoundingRect?.y ?? 0) / scaleFactor) + 1,
+        ((storyboardRootContainerBoundingRect?.x ?? 0) / scaleFactor),
+        ((storyboardRootContainerBoundingRect?.y ?? 0) / scaleFactor),
         ((storyboardRootContainerBoundingRect?.right ?? 0) / scaleFactor),
         ((storyboardRootContainerBoundingRect?.bottom ?? 0) / scaleFactor)
       ];

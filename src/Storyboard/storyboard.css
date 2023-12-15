@@ -87,13 +87,12 @@ input {
 
 .storyboard-layout-core-scaled-container-scroll-simulator {
   position: relative;
+  border: 1px dashed black;
 }
 
 .storyboard-layout-core-scaled-container {
-  position: absolute;
+  position: relative;
   overflow: hidden;
-
-  border: 1px dashed black;
 
   transform-origin: top left;
 
